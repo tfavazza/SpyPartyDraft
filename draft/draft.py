@@ -18,10 +18,10 @@ USER_READABLE_STATE_MAP = {
     STATE_BAN_TWO: "Second Ban",
     STATE_BAN_THREE: "Third Ban",
     STATE_BAN_FOUR: "Fourth Ban",
-    STATE_PICK_ONE: "First Pick",
-    STATE_PICK_TWO: "Second Pick",
-    STATE_PICK_THREE: "Third Pick",
-    STATE_PICK_FOUR: "Fourth Pick",
+    STATE_PICK_ONE: "First Selection",
+    STATE_PICK_TWO: "Second Selection",
+    STATE_PICK_THREE: "Third Selection",
+    STATE_PICK_FOUR: "Fourth Selection",
     STATE_DRAFT_COMPLETE: "Draft complete"
 }
 
@@ -75,14 +75,15 @@ class Draft:
     def _advance_state(self):
         self.state = NEXT_STATE[self.state]
 
-    def mark_map(self, map):
+    def mark_map(self, map, is_pick):
         if map is None:
-            self.banned_maps.append(Map("Nothing", "", ""))
+            self.banned_maps.append("Nothing")
         elif self.state.startswith("BAN"):
-            self.banned_maps.append(map)
+            self.banned_maps.append(map.name)
             self.map_pool.remove(map)
         else:
-            self.picked_maps.append(map)
+            map_name = map.map_mode_name(is_pick)
+            self.picked_maps.append(map_name)
             for x in [x for x in self.map_pool if x.family == map.family]:
                 self.map_pool.remove(x)
         self._advance_state()
@@ -101,7 +102,7 @@ class Draft:
         for x in self.banned_maps:
             list.append({
                 'picker': curr,
-                'map': x.name
+                'map': x
             })
             if curr == self.player_one:
                 curr = self.player_two
@@ -116,7 +117,7 @@ class Draft:
         for x in self.picked_maps:
             list.append({
                 'picker': curr,
-                'map': x.name
+                'map': x
             })
             if curr == self.player_one:
                 curr = self.player_two
